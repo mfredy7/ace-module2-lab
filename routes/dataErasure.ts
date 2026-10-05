@@ -101,9 +101,11 @@ router.post('/', (req: Request<Record<string, unknown>, Record<string, unknown>,
       }
 
       if (req.body.layout) {
-        const filePath: string = path.resolve(req.body.layout).toLowerCase()
-        const isForbiddenFile: boolean = (filePath.includes('ftp') || filePath.includes('ctf.key') || filePath.includes('encryptionkeys'))
-        if (!isForbiddenFile) {
+        const layout: string = String(req.body.layout)
+        const filePath: string = path.resolve(layout.startsWith('views') ? '.' : 'views', layout)
+        const isPathTraversal: boolean = !filePath.startsWith(path.resolve('views') + path.sep)
+        const isForbiddenFile: boolean = (filePath.toLowerCase().includes('ftp') || filePath.toLowerCase().includes('ctf.key') || filePath.toLowerCase().includes('encryptionkeys'))
+        if (!isPathTraversal && !isForbiddenFile) {
           res.render('dataErasureResult', {
             ...req.body,
             ...themeVars
